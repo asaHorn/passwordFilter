@@ -1,7 +1,7 @@
 //USAGE
 //this library compiles into a dll file
 //place this dll file in the system32 directory
-//edit the regkey HKLM:\System\CurrentControlSet\Control\Lsa
+//edit the regkey HKLM:\System\CurrentControlSet\Control\Lsa -> notificationPackages
 //add the name of the dll you placed into sys32 (minus the .dll part)
 //restart the box.
 //the dll should now be visible in procexp loaded under LSASS.exe
