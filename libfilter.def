@@ -1,0 +1,14 @@
+#
+# Asa Horn
+# aoh9470@rit.edu
+#
+
+# I am 90% sure this file isn't needed any more but I got the jenga tower
+#standing and I am not touching anything
+# In theory this file makes a note to the compiler that these functions
+# should be available to call. But I do that with __declspec(dllexport)
+
+EXPORTS
+InitializeChangeNotify
+PasswordChangeNotify
+PasswordFilter
