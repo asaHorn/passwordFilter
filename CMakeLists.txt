@@ -15,6 +15,8 @@ if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
     message(FATAL_ERROR "Target system is not 64-bit")
 endif()
 
+set(BUILD_SHARED_LIBS OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
@@ -26,6 +28,7 @@ add_library(filter SHARED ${SOURCES})
 
 # Additional settings to ensure x64 build
 set(CMAKE_GENERATOR_PLATFORM x64)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 # Optionally set platform-specific compile flags (for Windows 64-bit)
 if(MSVC)

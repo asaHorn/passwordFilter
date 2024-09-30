@@ -23,8 +23,8 @@ void InitUnicodeString(PUNICODE_STRING pUnicodeString, const wchar_t* wszString)
 int main() {
     // Prepare test data
     UNICODE_STRING username, password;
-    InitUnicodeString(&username, L"ihatewindows");
-    InitUnicodeString(&password, L"passme");
+    InitUnicodeString(&username, L"testuser");
+    InitUnicodeString(&password, L"passworddd-15");
     ULONG relativeId = 12345;
 
     // call my function (he gets lonely)

