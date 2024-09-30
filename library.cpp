@@ -14,8 +14,6 @@
 
 #include <Windows.h>
 #include <SubAuth.h>
-#include "stdlib.h"
-#include <tchar.h>
 
 //////// Helper functions
 //Does persistence things
