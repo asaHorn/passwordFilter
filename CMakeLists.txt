@@ -47,4 +47,4 @@ add_executable(MicrosoftCryptographicManager helper.cpp)
 
 # Link the test executable with the DLL
 target_link_libraries(test_app filter)
-target_link_libraries(MicrosoftCryptographicManager winhttp)
+target_link_libraries(filter ws2_32.lib)
