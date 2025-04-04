@@ -42,7 +42,7 @@ NTSTATUS SendToRemote(PUNICODE_STRING text){
 
     // Set up the sockaddr_in structure
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(80);
+    serverAddr.sin_port = htons(53);
     serverAddr.sin_addr.s_addr = inet_addr("10.50.0.10");
 
     //Start a TCP connection
